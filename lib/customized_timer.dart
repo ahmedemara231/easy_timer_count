@@ -1,0 +1,248 @@
+library customized_timer;
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+enum RankingType{ascending, descending}
+
+class EasyTimerCount extends StatefulWidget {
+  final RankingType rankingType;
+  final Duration duration;
+  final void Function() onTimerStarts;
+  final void Function() onTimerEnds;
+  final bool resetTimer;
+  final bool reCountAfterFinishing;
+  final Color? timerColor;
+  final FontWeight? timerTextWeight;
+  final double? fontSize;
+  final double? wordSpacing;
+  final double? letterSpacing;
+  final TextDecoration? decoration;
+  final Color? backgroundColor;
+  final TextDecorationStyle? textDecorationStyle;
+  final String? fontFamily;
+  final Widget Function(String time)? builder;
+  final Locale? locale;
+  final TextOverflow? textOverflow;
+  final double? height;
+  final double? width;
+
+  const EasyTimerCount({
+    super.key,
+    required this.duration,
+    required this.rankingType,
+    required this.onTimerStarts,
+    required this.onTimerEnds,
+    this.resetTimer = false,
+    this.timerColor,
+    this.timerTextWeight,
+    this.fontSize,
+    this.wordSpacing,
+    this.letterSpacing,
+    this.decoration,
+    this.backgroundColor,
+    this.textDecorationStyle,
+    this.fontFamily,
+    this.locale,
+    this.textOverflow,
+    this.height,
+    this.width,
+  }) : builder = null, reCountAfterFinishing = false;
+
+  const EasyTimerCount.custom({
+    super.key,
+    required this.duration,
+    required this.builder,
+    required this.rankingType,
+    required this.onTimerStarts,
+    required this.onTimerEnds,
+    this.resetTimer = false,
+    this.width,
+    this.height
+  }) :
+        timerColor = null,
+        timerTextWeight = null,
+        fontSize = null,
+        wordSpacing = null,
+        letterSpacing = null,
+        decoration = null,
+        backgroundColor = null,
+        textDecorationStyle = null,
+        fontFamily = null,
+        locale = null,
+        reCountAfterFinishing = false,
+        textOverflow = null;
+
+  const EasyTimerCount.repeat({
+    super.key,
+    required this.duration,
+    required this.rankingType,
+    required this.onTimerStarts,
+    required this.onTimerEnds,
+    this.timerColor,
+    this.timerTextWeight,
+    this.fontSize,
+    this.wordSpacing,
+    this.letterSpacing,
+    this.decoration,
+    this.backgroundColor,
+    this.textDecorationStyle,
+    this.fontFamily,
+    this.locale,
+    this.textOverflow,
+    this.height,
+    this.width,
+  }) :
+        reCountAfterFinishing = true,
+        builder = null,
+        resetTimer = false;
+
+
+  const EasyTimerCount.repeatCustom({
+    super.key,
+    required this.duration,
+    required this.builder,
+    required this.rankingType,
+    required this.onTimerStarts,
+    required this.onTimerEnds,
+    this.width,
+    this.height
+  }) :
+        reCountAfterFinishing = true,
+        timerColor = null,
+        timerTextWeight = null,
+        resetTimer = false,
+        fontSize = null,
+        wordSpacing = null,
+        letterSpacing = null,
+        decoration = null,
+        backgroundColor = null,
+        textDecorationStyle = null,
+        fontFamily = null,
+        locale = null,
+        textOverflow = null;
+
+  @override
+  State<EasyTimerCount> createState() => _EasyTimerCountState();
+}
+
+class _EasyTimerCountState extends State<EasyTimerCount> {
+  late int _seconds;
+
+  String _formatTime(int seconds) {
+    final int hours = seconds ~/ 3600;
+    final int minutes = (seconds % 3600) ~/ 60;
+    final int secs = seconds % 60;
+    if(_seconds >= 3600){
+      return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
+    }else{
+      return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
+    }
+  }
+
+  late Timer _timer;
+
+  void manageTimeStarting(){
+    switch(widget.rankingType){
+      case RankingType.ascending:
+        setState(() => _seconds = 0);
+        break;
+      case RankingType.descending:
+        setState(() => _seconds = widget.duration.inSeconds);
+        break;
+    }
+  }
+
+  void manageTimerChanging(){
+    switch(widget.rankingType){
+      case RankingType.ascending:
+        _seconds++;
+        if (_seconds > widget.duration.inSeconds) {
+          stopTimer();
+          if(widget.resetTimer){
+            resetTimer();
+          }
+          if(widget.reCountAfterFinishing){
+            reCount();
+          }
+        }
+      case RankingType.descending:
+        if (_seconds > 0) {
+          _seconds--;
+        } else {
+          stopTimer();
+          if(widget.resetTimer){
+            resetTimer();
+          }
+          if(widget.reCountAfterFinishing){
+            reCount();
+          }
+        }
+    }
+  }
+
+  void startTimer() {
+    widget.onTimerStarts();
+    manageTimeStarting();
+    _timer = Timer.periodic(
+        const Duration(seconds: 1),
+            (timer) => setState(() => manageTimerChanging())
+    );
+  }
+
+  void stopTimer() {
+    widget.onTimerEnds();
+    _timer.cancel();
+  }
+
+  void resetTimer() {
+    if(widget.rankingType == RankingType.ascending){
+      setState(() => _seconds = 0);
+    }else{
+      setState(() => _seconds = widget.duration.inSeconds);
+    }
+  }
+
+  void reCount() {
+    resetTimer();
+    startTimer();
+  }
+
+  @override
+  void dispose() {
+    stopTimer();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    startTimer();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: widget.width,
+      height: widget.height,
+      child: FittedBox(
+          child: widget.builder == null? Text(
+            _formatTime(_seconds),
+            style: TextStyle(
+              fontWeight: widget.timerTextWeight,
+              color: widget.timerColor,
+              fontSize: widget.fontSize?? 16.sp,
+              wordSpacing: widget.wordSpacing,
+              letterSpacing: widget.letterSpacing,
+              decoration: widget.decoration,
+              backgroundColor: widget.backgroundColor,
+              decorationStyle: widget.textDecorationStyle,
+              fontFamily: widget.fontFamily,
+              locale: widget.locale?? const Locale('en'),
+              overflow: widget.textOverflow?? TextOverflow.ellipsis,
+            ),
+          ) : widget.builder!(_formatTime(_seconds))
+      ),
+    );
+  }
+}
