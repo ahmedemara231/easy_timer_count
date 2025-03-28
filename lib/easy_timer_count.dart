@@ -130,9 +130,15 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
   late int _seconds;
 
   String _formatTime(int seconds) {
+    // final int days = seconds ~/ 86400;
     final int hours = seconds ~/ 3600;
     final int minutes = (seconds % 3600) ~/ 60;
     final int secs = seconds % 60;
+
+    // if (_seconds >= 86400) {
+    //   return '${days.toString().padLeft(2, '0')}:${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    // }
+
     if(_seconds >= 3600){
       return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
     }else{
