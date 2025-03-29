@@ -10,6 +10,7 @@ class EasyTimerCount extends StatefulWidget {
   final Duration duration;
   final void Function() onTimerStarts;
   final void Function() onTimerEnds;
+  final void Function(int restartCount)? onTimerRestart;
   final bool resetTimer;
   final bool reCountAfterFinishing;
   final Color? timerColor;
@@ -47,7 +48,7 @@ class EasyTimerCount extends StatefulWidget {
     this.textOverflow,
     this.height,
     this.width,
-  }) : builder = null, reCountAfterFinishing = false;
+  }) : builder = null, reCountAfterFinishing = false, onTimerRestart = null;
 
   const EasyTimerCount.custom({
     super.key,
@@ -71,7 +72,8 @@ class EasyTimerCount extends StatefulWidget {
         fontFamily = null,
         locale = null,
         reCountAfterFinishing = false,
-        textOverflow = null;
+        textOverflow = null,
+        onTimerRestart = null;
 
   const EasyTimerCount.repeat({
     super.key,
@@ -79,6 +81,7 @@ class EasyTimerCount extends StatefulWidget {
     required this.rankingType,
     required this.onTimerStarts,
     required this.onTimerEnds,
+    required this.onTimerRestart,
     this.timerColor,
     this.timerTextWeight,
     this.fontSize,
@@ -105,6 +108,7 @@ class EasyTimerCount extends StatefulWidget {
     required this.rankingType,
     required this.onTimerStarts,
     required this.onTimerEnds,
+    required this.onTimerRestart,
     this.width,
     this.height
   }) :
@@ -209,7 +213,10 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
     }
   }
 
+  int count = 0;
   void reCount() {
+    count++;
+    widget.onTimerRestart!(count);
     resetTimer();
     startTimer();
   }
