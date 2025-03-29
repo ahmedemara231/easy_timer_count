@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 enum RankingType{ascending, descending}
+enum SeparatorType{colon, dashed, none}
 
 class EasyTimerCount extends StatefulWidget {
+  final SeparatorType? separatorType;
   final RankingType rankingType;
   final Duration duration;
   final void Function() onTimerStarts;
@@ -34,6 +36,7 @@ class EasyTimerCount extends StatefulWidget {
     required this.rankingType,
     required this.onTimerStarts,
     required this.onTimerEnds,
+    this.separatorType = SeparatorType.colon,
     this.resetTimer = false,
     this.timerColor,
     this.timerTextWeight,
@@ -57,6 +60,7 @@ class EasyTimerCount extends StatefulWidget {
     required this.rankingType,
     required this.onTimerStarts,
     required this.onTimerEnds,
+    this.separatorType = SeparatorType.colon,
     this.resetTimer = false,
     this.width,
     this.height
@@ -82,6 +86,7 @@ class EasyTimerCount extends StatefulWidget {
     required this.onTimerStarts,
     required this.onTimerEnds,
     required this.onTimerRestart,
+    this.separatorType = SeparatorType.colon,
     this.timerColor,
     this.timerTextWeight,
     this.fontSize,
@@ -109,6 +114,7 @@ class EasyTimerCount extends StatefulWidget {
     required this.onTimerStarts,
     required this.onTimerEnds,
     required this.onTimerRestart,
+    this.separatorType = SeparatorType.colon,
     this.width,
     this.height
   }) :
@@ -131,6 +137,19 @@ class EasyTimerCount extends StatefulWidget {
 }
 
 class _EasyTimerCountState extends State<EasyTimerCount> {
+
+  late String separator;
+  String get _getSeparator{
+    switch(widget.separatorType){
+      case SeparatorType.colon:
+        return ':';
+      case SeparatorType.dashed:
+        return '-';
+      default:
+        return '';
+    }
+  }
+
   late int _seconds;
 
   String _formatTime(int seconds) {
@@ -144,9 +163,9 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
     // }
 
     if(_seconds >= 3600){
-      return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
+      return '${hours.toString().padLeft(2, '0')}$separator${minutes.toString().padLeft(2, '0')}$separator${secs.toString().padLeft(2, '0')}';
     }else{
-      return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
+      return '${minutes.toString().padLeft(2, '0')}$separator${secs.toString().padLeft(2, '0')}';
     }
   }
 
@@ -229,6 +248,7 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
 
   @override
   void initState() {
+    separator = _getSeparator;
     startTimer();
     super.initState();
   }
