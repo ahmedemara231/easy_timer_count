@@ -337,5 +337,12 @@ class EasyTimerController {
     }
   }
 
+  void reset() {
+    if (_timerState != null) {
+      _timerState!.resetTimer();
+      _timerState!.stopTimer();
+    }
+  }
+
 // bool get isPaused => _timerState?._isPaused ?? true;
 }
