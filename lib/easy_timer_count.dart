@@ -3,6 +3,19 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+class EasyTime{
+  final int hours;
+  final int minutes;
+  final int seconds;
+
+  EasyTime({
+    this.hours = 0,
+    this.minutes = 0,
+    this.seconds = 0
+  });
+
+  int get toSeconds => hours * 3600 + minutes * 60 + seconds;
+}
 
 enum RankingType{ascending, descending}
 enum SeparatorType{colon, dashed, none}
@@ -11,7 +24,7 @@ class EasyTimerCount extends StatefulWidget {
   final EasyTimerController controller;
   final SeparatorType? separatorType;
   final RankingType rankingType;
-  final Duration duration;
+  final EasyTime duration;
   final void Function() onTimerStarts;
   final void Function() onTimerEnds;
   final void Function(int restartCount)? onTimerRestart;
@@ -189,7 +202,7 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
         _setState(() => _seconds = 0);
         break;
       case RankingType.descending:
-        _setState(() => _seconds = widget.duration.inSeconds);
+        _setState(() => _seconds = widget.duration.toSeconds);
         break;
     }
   }
@@ -198,7 +211,7 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
     switch(widget.rankingType){
       case RankingType.ascending:
         _seconds++;
-        if (_seconds > widget.duration.inSeconds) {
+        if (_seconds > widget.duration.toSeconds) {
           stopTimer();
           if(widget.resetTimer){
             resetTimer();
@@ -247,7 +260,7 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
     if(widget.rankingType == RankingType.ascending){
       _setState(() => _seconds = 0);
     }else{
-      _setState(() => _seconds = widget.duration.inSeconds);
+      _setState(() => _seconds = widget.duration.toSeconds);
     }
   }
 
