@@ -3,10 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+
 enum RankingType{ascending, descending}
 enum SeparatorType{colon, dashed, none}
 
 class EasyTimerCount extends StatefulWidget {
+  final EasyTimerController controller;
   final SeparatorType? separatorType;
   final RankingType rankingType;
   final Duration duration;
@@ -32,6 +34,7 @@ class EasyTimerCount extends StatefulWidget {
 
   const EasyTimerCount({
     super.key,
+    required this.controller,
     required this.duration,
     required this.rankingType,
     required this.onTimerStarts,
@@ -55,6 +58,7 @@ class EasyTimerCount extends StatefulWidget {
 
   const EasyTimerCount.custom({
     super.key,
+    required this.controller,
     required this.duration,
     required this.builder,
     required this.rankingType,
@@ -81,6 +85,7 @@ class EasyTimerCount extends StatefulWidget {
 
   const EasyTimerCount.repeat({
     super.key,
+    required this.controller,
     required this.duration,
     required this.rankingType,
     required this.onTimerStarts,
@@ -108,6 +113,7 @@ class EasyTimerCount extends StatefulWidget {
 
   const EasyTimerCount.repeatCustom({
     super.key,
+    required this.controller,
     required this.duration,
     required this.builder,
     required this.rankingType,
@@ -138,8 +144,14 @@ class EasyTimerCount extends StatefulWidget {
 
 class _EasyTimerCountState extends State<EasyTimerCount> {
 
+  void _setState(Function function) {
+    setState(() => widget.controller._setState(this));
+    function();
+  }
+
   late String separator;
   String get _getSeparator{
+
     switch(widget.separatorType){
       case SeparatorType.colon:
         return ':';
@@ -174,10 +186,10 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
   void manageTimeStarting(){
     switch(widget.rankingType){
       case RankingType.ascending:
-        setState(() => _seconds = 0);
+        _setState(() => _seconds = 0);
         break;
       case RankingType.descending:
-        setState(() => _seconds = widget.duration.inSeconds);
+        _setState(() => _seconds = widget.duration.inSeconds);
         break;
     }
   }
@@ -215,7 +227,14 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
     manageTimeStarting();
     _timer = Timer.periodic(
         const Duration(seconds: 1),
-            (timer) => setState(() => manageTimerChanging())
+            (timer) => _setState(() => manageTimerChanging())
+    );
+  }
+
+  void resumeTimer() {
+    _timer = Timer.periodic(
+        const Duration(seconds: 1),
+            (timer) => _setState(() => manageTimerChanging())
     );
   }
 
@@ -226,9 +245,9 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
 
   void resetTimer() {
     if(widget.rankingType == RankingType.ascending){
-      setState(() => _seconds = 0);
+      _setState(() => _seconds = 0);
     }else{
-      setState(() => _seconds = widget.duration.inSeconds);
+      _setState(() => _seconds = widget.duration.inSeconds);
     }
   }
 
@@ -278,4 +297,32 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
       ),
     );
   }
+}
+
+class EasyTimerController {
+  _EasyTimerCountState? _timerState;
+
+  void _setState(_EasyTimerCountState state) {
+    _timerState = state;
+  }
+
+  void restart() {
+    if (_timerState != null) {
+      _timerState!.reCount();
+    }
+  }
+
+  void stop() {
+    if (_timerState != null) {
+      _timerState!.stopTimer();
+    }
+  }
+
+  void resume() {
+    if (_timerState != null) {
+      _timerState!.resumeTimer();
+    }
+  }
+
+// bool get isPaused => _timerState?._isPaused ?? true;
 }
