@@ -1,6 +1,7 @@
 name: easy_timer_count
 description: "A flexible Flutter package for countdown and count-up timers"
 version: 0.0.1
+repository: https://github.com/ahmedemara231/easy_timer_count
 homepage: https://github.com/ahmedemara231/easy_timer_count
 
 environment:
