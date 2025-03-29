@@ -8,7 +8,7 @@ class EasyTime{
   final int minutes;
   final int seconds;
 
-  EasyTime({
+  const EasyTime({
     this.hours = 0,
     this.minutes = 0,
     this.seconds = 0

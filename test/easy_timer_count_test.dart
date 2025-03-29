@@ -24,7 +24,7 @@ void main() {
           home: Scaffold(
             body: EasyTimerCount(
               controller: controller,
-              duration: EasyTime(seconds: 10),
+              duration: const EasyTime(seconds: 10),
               rankingType: RankingType.descending,
               onTimerStarts: () => timerStartCalls++,
               onTimerEnds: () => timerEndCalls++,
@@ -44,7 +44,7 @@ void main() {
           home: Scaffold(
             body: EasyTimerCount.custom(
               controller: controller,
-              duration: EasyTime(seconds: 10),
+              duration: const EasyTime(seconds: 10),
               rankingType: RankingType.descending,
               onTimerStarts: () => timerStartCalls++,
               onTimerEnds: () => timerEndCalls++,
@@ -69,7 +69,7 @@ void main() {
           home: Scaffold(
             body: EasyTimerCount.repeat(
               controller: controller,
-              duration: EasyTime(seconds: 2),
+              duration: const EasyTime(seconds: 2),
               rankingType: RankingType.descending,
               onTimerStarts: () => timerStartCalls++,
               onTimerEnds: () => timerEndCalls++,
@@ -101,7 +101,7 @@ void main() {
           home: Scaffold(
             body: EasyTimerCount.repeatCustom(
               controller: controller,
-              duration: EasyTime(seconds: 2),
+              duration: const EasyTime(seconds: 2),
               rankingType: RankingType.descending,
               onTimerStarts: () => timerStartCalls++,
               onTimerEnds: () => timerEndCalls++,
@@ -134,7 +134,7 @@ void main() {
           home: Scaffold(
             body: EasyTimerCount(
               controller: controller,
-              duration: EasyTime(seconds: 65),
+              duration: const EasyTime(seconds: 65),
               rankingType: RankingType.descending,
               onTimerStarts: () => timerStartCalls++,
               onTimerEnds: () => timerEndCalls++,
@@ -158,7 +158,7 @@ void main() {
           home: Scaffold(
             body: EasyTimerCount(
               controller: controller,
-              duration: EasyTime(seconds: 65),
+              duration: const EasyTime(seconds: 65),
               rankingType: RankingType.descending,
               onTimerStarts: () => timerStartCalls++,
               onTimerEnds: () => timerEndCalls++,
@@ -176,7 +176,7 @@ void main() {
           home: Scaffold(
             body: EasyTimerCount(
               controller: controller,
-              duration: EasyTime(seconds: 65),
+              duration: const EasyTime(seconds: 65),
               rankingType: RankingType.descending,
               onTimerStarts: () => timerStartCalls++,
               onTimerEnds: () => timerEndCalls++,
@@ -196,7 +196,7 @@ void main() {
           home: Scaffold(
             body: EasyTimerCount(
               controller: controller,
-              duration: EasyTime(seconds: 5),
+              duration: const EasyTime(seconds: 5),
               rankingType: RankingType.ascending,
               onTimerStarts: () => timerStartCalls++,
               onTimerEnds: () => timerEndCalls++,
@@ -227,7 +227,7 @@ void main() {
           home: Scaffold(
             body: EasyTimerCount(
               controller: controller,
-              duration: EasyTime(seconds: 10),
+              duration: const EasyTime(seconds: 10),
               rankingType: RankingType.descending,
               onTimerStarts: () => timerStartCalls++,
               onTimerEnds: () => timerEndCalls++,
@@ -259,7 +259,7 @@ void main() {
           home: Scaffold(
             body: EasyTimerCount(
               controller: controller,
-              duration: EasyTime(seconds: 10),
+              duration: const EasyTime(seconds: 10),
               rankingType: RankingType.descending,
               onTimerStarts: () => timerStartCalls++,
               onTimerEnds: () => timerEndCalls++,
@@ -295,7 +295,7 @@ void main() {
           home: Scaffold(
             body: EasyTimerCount(
               controller: controller,
-              duration: EasyTime(hours: 1, minutes: 5, seconds: 10),
+              duration: const EasyTime(hours: 1, minutes: 5, seconds: 10),
               rankingType: RankingType.descending,
               onTimerStarts: () => timerStartCalls++,
               onTimerEnds: () => timerEndCalls++,
@@ -314,7 +314,7 @@ void main() {
           home: Scaffold(
             body: EasyTimerCount(
               controller: controller,
-              duration: EasyTime(seconds: 10),
+              duration: const EasyTime(seconds: 10),
               rankingType: RankingType.descending,
               onTimerStarts: () => timerStartCalls++,
               onTimerEnds: () => timerEndCalls++,
@@ -340,7 +340,7 @@ void main() {
           home: Scaffold(
             body: EasyTimerCount(
               controller: controller,
-              duration: EasyTime(seconds: 10),
+              duration: const EasyTime(seconds: 10),
               rankingType: RankingType.descending,
               onTimerStarts: () => timerStartCalls++,
               onTimerEnds: () => timerEndCalls++,
@@ -368,7 +368,7 @@ void main() {
           home: Scaffold(
             body: EasyTimerCount(
               controller: controller,
-              duration: EasyTime(seconds: 10),
+              duration: const EasyTime(seconds: 10),
               rankingType: RankingType.descending,
               onTimerStarts: () => timerStartCalls++,
               onTimerEnds: () => timerEndCalls++,
@@ -395,7 +395,7 @@ void main() {
             body: Center(
               child: EasyTimerCount(
                 controller: controller,
-                duration: EasyTime(seconds: 10),
+                duration: const EasyTime(seconds: 10),
                 rankingType: RankingType.descending,
                 onTimerStarts: () => timerStartCalls++,
                 onTimerEnds: () => timerEndCalls++,
