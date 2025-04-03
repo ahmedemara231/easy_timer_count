@@ -208,7 +208,7 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
       case RankingType.ascending:
         _seconds++;
         if (_seconds > widget.duration.toSeconds) {
-          stopTimer(true);
+          stopTimer();
           if(widget.resetTimer){
             resetTimer();
           }
@@ -220,7 +220,7 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
         if (_seconds > 0) {
           _seconds--;
         } else {
-          stopTimer(true);
+          stopTimer();
           if(widget.resetTimer){
             resetTimer();
           }
@@ -231,10 +231,8 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
     }
   }
 
-  void startTimer(bool isOnStarting) {
-    if(isOnStarting){
-      widget.onTimerStarts();
-    }
+  void startTimer() {
+    widget.onTimerStarts();
     manageTimeStarting();
     _timer = Timer.periodic(
         const Duration(seconds: 1),
@@ -250,10 +248,8 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
     );
   }
 
-  void stopTimer(bool isOnFinishing) {
-    if(isOnFinishing){
-      widget.onTimerEnds();
-    }
+  void stopTimer() {
+    widget.onTimerEnds();
     _timer.cancel();
   }
 
@@ -271,19 +267,19 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
     count++;
     widget.onTimerRestart!(count);
     resetTimer();
-    startTimer(false);
+    startTimer();
   }
 
   @override
   void dispose() {
-    stopTimer(true);
+    stopTimer();
     super.dispose();
   }
 
   @override
   void initState() {
     separator = _getSeparator;
-    startTimer(true);
+    startTimer();
     super.initState();
   }
 
@@ -329,7 +325,7 @@ class EasyTimerController {
 
   void stop() {
     if (_timerState != null) {
-      _timerState!.stopTimer(true);
+      _timerState!.stopTimer();
     }
   }
 
@@ -342,7 +338,7 @@ class EasyTimerController {
   void reset() {
     if (_timerState != null) {
       _timerState!.resetTimer();
-      _timerState!.stopTimer(false);
+      _timerState!._timer.cancel();
     }
   }
 // bool get isPaused => _timerState?._isPaused ?? true;
