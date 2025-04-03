@@ -8,11 +8,7 @@ class EasyTime{
   final int minutes;
   final int seconds;
 
-  const EasyTime({
-    this.hours = 0,
-    this.minutes = 0,
-    this.seconds = 0
-  });
+  const EasyTime({this.hours = 0, this.minutes = 0, this.seconds = 0});
 
   int get toSeconds => hours * 3600 + minutes * 60 + seconds;
 }
@@ -212,31 +208,33 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
       case RankingType.ascending:
         _seconds++;
         if (_seconds > widget.duration.toSeconds) {
-          stopTimer();
+          stopTimer(true);
           if(widget.resetTimer){
             resetTimer();
           }
           if(widget.reCountAfterFinishing){
-            reCount();
+            restart();
           }
         }
       case RankingType.descending:
         if (_seconds > 0) {
           _seconds--;
         } else {
-          stopTimer();
+          stopTimer(true);
           if(widget.resetTimer){
             resetTimer();
           }
           if(widget.reCountAfterFinishing){
-            reCount();
+            restart();
           }
         }
     }
   }
 
-  void startTimer() {
-    widget.onTimerStarts();
+  void startTimer(bool isOnStarting) {
+    if(isOnStarting){
+      widget.onTimerStarts();
+    }
     manageTimeStarting();
     _timer = Timer.periodic(
         const Duration(seconds: 1),
@@ -245,14 +243,17 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
   }
 
   void resumeTimer() {
+    _timer.cancel();
     _timer = Timer.periodic(
         const Duration(seconds: 1),
             (timer) => _setState(() => manageTimerChanging())
     );
   }
 
-  void stopTimer() {
-    widget.onTimerEnds();
+  void stopTimer(bool isOnFinishing) {
+    if(isOnFinishing){
+      widget.onTimerEnds();
+    }
     _timer.cancel();
   }
 
@@ -265,23 +266,24 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
   }
 
   int count = 0;
-  void reCount() {
+  void restart() {
+    _timer.cancel();
     count++;
     widget.onTimerRestart!(count);
     resetTimer();
-    startTimer();
+    startTimer(false);
   }
 
   @override
   void dispose() {
-    stopTimer();
+    stopTimer(true);
     super.dispose();
   }
 
   @override
   void initState() {
     separator = _getSeparator;
-    startTimer();
+    startTimer(true);
     super.initState();
   }
 
@@ -321,13 +323,13 @@ class EasyTimerController {
 
   void restart() {
     if (_timerState != null) {
-      _timerState!.reCount();
+      _timerState!.restart();
     }
   }
 
   void stop() {
     if (_timerState != null) {
-      _timerState!.stopTimer();
+      _timerState!.stopTimer(true);
     }
   }
 
@@ -340,9 +342,8 @@ class EasyTimerController {
   void reset() {
     if (_timerState != null) {
       _timerState!.resetTimer();
-      _timerState!.stopTimer();
+      _timerState!.stopTimer(false);
     }
   }
-
 // bool get isPaused => _timerState?._isPaused ?? true;
 }
