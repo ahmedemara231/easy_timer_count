@@ -21,9 +21,9 @@ class EasyTimerCount extends StatefulWidget {
   final SeparatorType? separatorType;
   final RankingType rankingType;
   final EasyTime duration;
-  final void Function() onTimerStarts;
-  final void Function() onTimerEnds;
-  final void Function(int countOfRestart)? onTimerRestart;
+  final FutureOr<void> Function() onTimerStarts;
+  final FutureOr<void> Function() onTimerEnds;
+  final FutureOr<void> Function(int countOfRestart)? onTimerRestart;
   final bool resetTimer;
   final bool reCountAfterFinishing;
   final Color? timerColor;
