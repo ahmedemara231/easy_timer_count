@@ -17,13 +17,13 @@ enum RankingType{ascending, descending}
 enum SeparatorType{colon, dashed, none}
 
 class EasyTimerCount extends StatefulWidget {
-  final EasyTimerController controller;
+  final EasyTimerController? controller;
   final SeparatorType? separatorType;
   final RankingType rankingType;
   final EasyTime duration;
   final void Function() onTimerStarts;
   final void Function() onTimerEnds;
-  final void Function(int restartCount)? onTimerRestart;
+  final void Function(int countOfRestart)? onTimerRestart;
   final bool resetTimer;
   final bool reCountAfterFinishing;
   final Color? timerColor;
@@ -43,7 +43,6 @@ class EasyTimerCount extends StatefulWidget {
 
   const EasyTimerCount({
     super.key,
-    required this.controller,
     required this.duration,
     required this.rankingType,
     required this.onTimerStarts,
@@ -61,13 +60,13 @@ class EasyTimerCount extends StatefulWidget {
     this.fontFamily,
     this.locale,
     this.textOverflow,
+    this.controller,
     this.height,
     this.width,
   }) : builder = null, reCountAfterFinishing = false, onTimerRestart = null;
 
   const EasyTimerCount.custom({
     super.key,
-    required this.controller,
     required this.duration,
     required this.builder,
     required this.rankingType,
@@ -75,6 +74,7 @@ class EasyTimerCount extends StatefulWidget {
     required this.onTimerEnds,
     this.separatorType = SeparatorType.colon,
     this.resetTimer = false,
+    this.controller,
     this.width,
     this.height
   }) :
@@ -94,7 +94,6 @@ class EasyTimerCount extends StatefulWidget {
 
   const EasyTimerCount.repeat({
     super.key,
-    required this.controller,
     required this.duration,
     required this.rankingType,
     required this.onTimerStarts,
@@ -112,6 +111,7 @@ class EasyTimerCount extends StatefulWidget {
     this.fontFamily,
     this.locale,
     this.textOverflow,
+    this.controller,
     this.height,
     this.width,
   }) :
@@ -122,7 +122,6 @@ class EasyTimerCount extends StatefulWidget {
 
   const EasyTimerCount.repeatCustom({
     super.key,
-    required this.controller,
     required this.duration,
     required this.builder,
     required this.rankingType,
@@ -130,6 +129,7 @@ class EasyTimerCount extends StatefulWidget {
     required this.onTimerEnds,
     required this.onTimerRestart,
     this.separatorType = SeparatorType.colon,
+    this.controller,
     this.width,
     this.height
   }) :
@@ -154,7 +154,7 @@ class EasyTimerCount extends StatefulWidget {
 class _EasyTimerCountState extends State<EasyTimerCount> {
 
   void _setState(Function function) {
-    setState(() => widget.controller._setState(this));
+    setState(() => widget.controller?._setState(this));
     function();
   }
 
