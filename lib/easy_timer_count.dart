@@ -65,7 +65,7 @@ class EasyTimerCount extends StatefulWidget {
     this.width,
   }) : builder = null, reCountAfterFinishing = false, onTimerRestart = null;
 
-  const EasyTimerCount.custom({
+  const EasyTimerCount.builder({
     super.key,
     required this.duration,
     required this.builder,
@@ -120,7 +120,7 @@ class EasyTimerCount extends StatefulWidget {
         resetTimer = false;
 
 
-  const EasyTimerCount.repeatCustom({
+  const EasyTimerCount.repeatBuilder({
     super.key,
     required this.duration,
     required this.builder,
@@ -154,8 +154,8 @@ class EasyTimerCount extends StatefulWidget {
 class _EasyTimerCountState extends State<EasyTimerCount> {
 
   void _setState(Function function) {
-    setState(() => widget.controller?._setState(this));
     function();
+    setState(() => widget.controller?._setState(this));
   }
 
   late String separator;
@@ -217,9 +217,8 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
           }
         }
       case RankingType.descending:
-        if (_seconds > 0) {
-          _seconds--;
-        } else {
+        _seconds--;
+        if (_seconds < 0) {
           stopTimer();
           if(widget.resetTimer){
             resetTimer();
@@ -262,12 +261,15 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
   }
 
   int count = 0;
+
   void restart() {
-    _timer.cancel();
     count++;
-    widget.onTimerRestart!(count);
+    if(_timer.isActive){
+      _timer.cancel();
+    }
     resetTimer();
     startTimer();
+    widget.onTimerRestart!(count);
   }
 
   @override
