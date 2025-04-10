@@ -44,9 +44,9 @@ class EasyTimerCount extends StatefulWidget {
   const EasyTimerCount({
     super.key,
     required this.duration,
-    required this.rankingType,
     required this.onTimerStarts,
     required this.onTimerEnds,
+    this.rankingType = RankingType.descending,
     this.separatorType = SeparatorType.colon,
     this.resetTimer = false,
     this.timerColor,
