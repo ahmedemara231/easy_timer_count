@@ -218,7 +218,7 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
         }
       case RankingType.descending:
         _seconds--;
-        if (_seconds < 0) {
+        if (_seconds == 0) {
           stopTimer();
           if(widget.resetTimer){
             resetTimer();
@@ -269,7 +269,9 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
     }
     resetTimer();
     startTimer();
-    widget.onTimerRestart!(count);
+    if(widget.onTimerRestart != null){
+      widget.onTimerRestart!(count);
+    }
   }
 
   @override
@@ -341,6 +343,13 @@ class EasyTimerController {
     if (_timerState != null) {
       _timerState!.resetTimer();
       _timerState!._timer.cancel();
+    }
+  }
+
+  void dispose() {
+    if (_timerState != null) {
+      _timerState!._timer.cancel();
+      _timerState = null;
     }
   }
 // bool get isPaused => _timerState?._isPaused ?? true;
