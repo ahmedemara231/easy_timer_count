@@ -1,5 +1,6 @@
 library customized_timer;
 import 'dart:async';
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -207,9 +208,11 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
     switch(widget.rankingType){
       case RankingType.ascending:
         _seconds++;
-        if (_seconds > widget.duration.toSeconds) {
+        log(_seconds.toString());
+        if (_seconds == widget.duration.toSeconds) {
           stopTimer();
           if(widget.resetTimer){
+            // TODO: delay for 1 second
             resetTimer();
           }
           if(widget.reCountAfterFinishing){
@@ -221,6 +224,7 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
         if (_seconds == 0) {
           stopTimer();
           if(widget.resetTimer){
+            // TODO: delay for 1 second
             resetTimer();
           }
           if(widget.reCountAfterFinishing){
