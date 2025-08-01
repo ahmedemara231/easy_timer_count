@@ -160,7 +160,6 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
 
   late String separator;
   String get _getSeparator{
-
     switch(widget.separatorType){
       case SeparatorType.colon:
         return ':';
@@ -192,99 +191,110 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
 
   late Timer _timer;
 
-  void manageTimeStarting(){
+  void _manageTimerBasedRanking({
+    required void Function() actionBasedAscendingRanking,
+    required void Function() actionBasedDescendingRanking,
+}){
     switch(widget.rankingType){
       case RankingType.ascending:
-        _setState(() => _seconds = 0);
+        actionBasedAscendingRanking();
         break;
+
       case RankingType.descending:
-        _setState(() => _seconds = widget.duration.toSeconds);
+        actionBasedDescendingRanking();
         break;
     }
   }
 
-  void manageTimerChanging(){
-    switch(widget.rankingType){
-      case RankingType.ascending:
-        _seconds++;
-        log(_seconds.toString());
-        if (_seconds == widget.duration.toSeconds) {
-          stopTimer();
-          if(widget.resetTimer){
-            // TODO: delay for 1 second
-            resetTimer();
-          }
-          if(widget.reCountAfterFinishing){
-            restart();
-          }
-        }
-      case RankingType.descending:
-        _seconds--;
-        if (_seconds == 0) {
-          stopTimer();
-          if(widget.resetTimer){
-            // TODO: delay for 1 second
-            resetTimer();
-          }
-          if(widget.reCountAfterFinishing){
-            restart();
-          }
-        }
-    }
-  }
-
-  void startTimer() {
-    widget.onTimerStarts(context);
-    manageTimeStarting();
-    _timer = Timer.periodic(
-        const Duration(seconds: 1),
-            (timer) => _setState(() => manageTimerChanging())
+  void _manageTimeStarting(){
+    _manageTimerBasedRanking(
+        actionBasedAscendingRanking: () => _setState(() => _seconds = 0),
+        actionBasedDescendingRanking: () => _setState(() => _seconds = widget.duration.toSeconds)
     );
   }
 
-  void resumeTimer() {
+  void _manageTimerChanging(){
+    _manageTimerBasedRanking(
+        actionBasedAscendingRanking: () {
+          _seconds++;
+          if (_seconds == widget.duration.toSeconds) {
+            _stopTimer();
+            if(widget.resetTimer){
+              // TODO: delay for 1 second
+              _resetTimer();
+            }
+            if(widget.reCountAfterFinishing){
+              _restart();
+            }
+          }
+        },
+        actionBasedDescendingRanking: () {
+          _seconds--;
+          if (_seconds == 0) {
+            _stopTimer();
+            if(widget.resetTimer){
+              // TODO: delay for 1 second
+              _resetTimer();
+            }
+            if(widget.reCountAfterFinishing){
+              _restart();
+            }
+          }
+        }
+     );
+  }
+
+  Future<void> _startTimer() async{
+    _manageTimeStarting();
+    _timer = Timer.periodic(
+        const Duration(seconds: 1),
+            (timer) => _setState(() => _manageTimerChanging())
+    );
+    await widget.onTimerStarts(context);
+  }
+
+  void _resumeTimer() {
     _timer.cancel();
     _timer = Timer.periodic(
         const Duration(seconds: 1),
-            (timer) => _setState(() => manageTimerChanging())
+            (timer) => _setState(() => _manageTimerChanging())
     );
   }
 
-  void stopTimer() {
-    widget.onTimerEnds(context);
+  Future<void> _stopTimer() async{
     _timer.cancel();
+    await widget.onTimerEnds(context);
   }
 
-  void resetTimer() {
-    if(widget.rankingType == RankingType.ascending){
-      _setState(() => _seconds = 0);
-    }else{
-      _setState(() => _seconds = widget.duration.toSeconds);
-    }
+  void _resetTimer() {
+    _manageTimerBasedRanking(
+        actionBasedAscendingRanking: () => _setState(() => _seconds = 0),
+        actionBasedDescendingRanking: () => _setState(() => _seconds = widget.duration.toSeconds)
+    );
   }
 
   int count = 0;
 
-  void restart() {
+  void _restart() {
     count++;
     if(_timer.isActive){
       _timer.cancel();
     }
-    resetTimer();
-    startTimer();
+    _resetTimer();
+    _startTimer();
     widget.onTimerRestart?.call(context, count);
   }
 
   @override
   void dispose() {
-    stopTimer();
+    _stopTimer();
     super.dispose();
   }
 
   @override
   void initState() {
     separator = _getSeparator;
-    startTimer();
+    _startTimer();
     super.initState();
   }
 
@@ -324,25 +334,25 @@ class EasyTimerController {
 
   void restart() {
     if (_timerState != null) {
-      _timerState!.restart();
+      _timerState!._restart();
     }
   }
 
   void stop() {
     if (_timerState != null) {
-      _timerState!.stopTimer();
+      _timerState!._stopTimer();
     }
   }
 
   void resume() {
     if (_timerState != null) {
-      _timerState!.resumeTimer();
+      _timerState!._resumeTimer();
     }
   }
 
   void reset() {
     if (_timerState != null) {
-      _timerState!.resetTimer();
+      _timerState!._resetTimer();
       _timerState!._timer.cancel();
     }
   }
