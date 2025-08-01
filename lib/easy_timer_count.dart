@@ -2,7 +2,6 @@ library customized_timer;
 import 'dart:async';
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class EasyTime{
   final int hours;
@@ -22,9 +21,9 @@ class EasyTimerCount extends StatefulWidget {
   final SeparatorType? separatorType;
   final RankingType rankingType;
   final EasyTime duration;
-  final FutureOr<void> Function() onTimerStarts;
-  final FutureOr<void> Function() onTimerEnds;
-  final FutureOr<void> Function(int countOfRestart)? onTimerRestart;
+  final FutureOr<void> Function(BuildContext context) onTimerStarts;
+  final FutureOr<void> Function(BuildContext context) onTimerEnds;
+  final FutureOr<void> Function(BuildContext context, int countOfRestart)? onTimerRestart;
   final bool resetTimer;
   final bool reCountAfterFinishing;
   final Color? timerColor;
@@ -235,7 +234,7 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
   }
 
   void startTimer() {
-    widget.onTimerStarts();
+    widget.onTimerStarts(context);
     manageTimeStarting();
     _timer = Timer.periodic(
         const Duration(seconds: 1),
@@ -252,7 +251,7 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
   }
 
   void stopTimer() {
-    widget.onTimerEnds();
+    widget.onTimerEnds(context);
     _timer.cancel();
   }
 
@@ -273,9 +272,7 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
     }
     resetTimer();
     startTimer();
-    if(widget.onTimerRestart != null){
-      widget.onTimerRestart!(count);
-    }
+    widget.onTimerRestart?.call(context, count);
   }
 
   @override
@@ -302,7 +299,7 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
             style: TextStyle(
               fontWeight: widget.timerTextWeight,
               color: widget.timerColor,
-              fontSize: widget.fontSize?? 16.sp,
+              fontSize: widget.fontSize?? 16,
               wordSpacing: widget.wordSpacing,
               letterSpacing: widget.letterSpacing,
               decoration: widget.decoration,
