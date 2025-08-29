@@ -1,24 +1,24 @@
-# EasyTimerCount
+# Easy Timer Count
 
-![Pub Version](https://img.shields.io/badge/pub-v1.0.0-blue)
-![Flutter Platform](https://img.shields.io/badge/platform-flutter-yellow)
-![License](https://img.shields.io/badge/license-MIT-green)
-
-A flexible and customizable timer widget for Flutter applications. `EasyTimerCount` provides a straightforward way to implement countdown or count-up timers with extensive styling options and control capabilities.
+A powerful and customizable Flutter package for creating countdown and countup timers with rich styling options and flexible controls.
 
 ## Features
 
-- 🕒 Simple API for creating countdown or count-up timers
-- 🔄 Ability to restart, pause, resume, and reset timers
-- 🎨 Extensive styling and formatting options
-- 🛠️ Custom builder support for completely custom UIs
-- 🔄 Auto-restart functionality
-- 🎮 External controller for timer management
-- ⏲️ Multiple time display formats
+- ✅ **Countdown Timer**: Count down from a specified duration
+- ✅ **Countup Timer**: Count up to a specified duration  
+- ✅ **Flexible Time Format**: Support for hours, minutes, and seconds
+- ✅ **Custom Separators**: Choose between colon (:), dash (-), or no separator
+- ✅ **Timer Controller**: Programmatically control timer (start, stop, pause, resume, reset, restart)
+- ✅ **Auto Reset**: Automatically reset timer when it finishes
+- ✅ **Auto Restart**: Continuously restart timer after completion
+- ✅ **Custom Builder**: Build your own timer UI with custom widgets
+- ✅ **Rich Text Styling**: Full control over timer text appearance
+- ✅ **Callback Events**: Handle timer start, end, and restart events
+- ✅ **Easy Integration**: Simple and intuitive API
 
 ## Installation
 
-Add the following to your `pubspec.yaml` file:
+Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
@@ -33,254 +33,293 @@ flutter pub get
 
 ## Usage
 
-### Basic Timer
+### Basic Countdown Timer
 
-Create a simple countdown timer:
+```dart
+import 'package:easy_timer_count/easy_timer_count.dart';
+
+EasyTimerCount(
+  duration: EasyTime(minutes: 5, seconds: 30),
+  onTimerStarts: (context) {
+    print('Timer started!');
+  },
+  onTimerEnds: (context) {
+    print('Timer finished!');
+  },
+)
+```
+
+### Basic Countup Timer
 
 ```dart
 EasyTimerCount(
-  duration: const EasyTime(minutes: 1, seconds: 30),
-  rankingType: RankingType.descending,
-  onTimerStarts: () => print('Timer started'),
-  onTimerEnds: () => print('Timer ended'),
+  duration: EasyTime(minutes: 10),
+  rankingType: RankingType.ascending,
+  onTimerStarts: (context) {
+    print('Counting up started!');
+  },
+  onTimerEnds: (context) {
+    print('Target reached!');
+  },
 )
 ```
 
 ### Timer with Controller
 
-Use a controller to manage the timer externally:
-
 ```dart
-final controller = EasyTimerController();
-
-// In your widget build method:
-EasyTimerCount(
-  duration: const EasyTime(minutes: 5),
-  rankingType: RankingType.descending,
-  onTimerStarts: () => print('Timer started'),
-  onTimerEnds: () => print('Timer ended'),
-  controller: controller,
-)
-
-// Control the timer from anywhere:
-controller.stop();    // Pause the timer
-controller.resume();  // Resume the timer
-controller.reset();   // Reset the timer
-controller.restart(); // Restart the timer
-```
-
-### Repeating Timer
-
-Create a timer that automatically restarts when finished:
-
-```dart
-EasyTimerCount.repeat(
-  duration: const EasyTime(seconds: 30),
-  rankingType: RankingType.descending,
-  onTimerStarts: () => print('Timer started'),
-  onTimerEnds: () => print('Timer ended'),
-  onTimerRestart: (count) => print('Timer restarted $count times'),
-)
-```
-
-### Custom Timer UI
-
-Completely customize the timer's appearance:
-
-```dart
-EasyTimerCount.builder(
-  duration: const EasyTime(minutes: 1),
-  rankingType: RankingType.descending,
-  onTimerStarts: () => print('Timer started'),
-  onTimerEnds: () => print('Timer ended'),
-  builder: (String time) => Container(
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: Colors.blue,
-      borderRadius: BorderRadius.circular(8),
-    ),
-    child: Text(
-      'Remaining: $time',
-      style: const TextStyle(
-        color: Colors.white,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-  ),
-)
-```
-
-## API Reference
-
-### EasyTime
-
-Represents a duration with hours, minutes, and seconds.
-
-```dart
-const EasyTime({
-  int hours = 0,
-  int minutes = 0,
-  int seconds = 0,
-});
-```
-
-### EasyTimerCount
-
-Main timer widget with various constructors:
-
-#### Basic Constructor
-
-```dart
-EasyTimerCount({
-  required EasyTime duration,
-  required RankingType rankingType,
-  required Function() onTimerStarts,
-  required Function() onTimerEnds,
-  SeparatorType? separatorType = SeparatorType.colon,
-  bool resetTimer = false,
-  // Style properties...
-  EasyTimerController? controller,
-  double? height,
-  double? width,
-})
-```
-
-#### Builder Constructor
-
-```dart
-EasyTimerCount.builder({
-  required EasyTime duration,
-  required Widget Function(String time) builder,
-  required RankingType rankingType,
-  required Function() onTimerStarts,
-  required Function() onTimerEnds,
-  SeparatorType? separatorType = SeparatorType.colon,
-  bool resetTimer = false,
-  EasyTimerController? controller,
-  double? width,
-  double? height,
-})
-```
-
-#### Repeat Constructor
-
-```dart
-EasyTimerCount.repeat({
-  required EasyTime duration,
-  required RankingType rankingType,
-  required Function() onTimerStarts,
-  required Function() onTimerEnds,
-  required Function(int countOfRestart) onTimerRestart,
-  // Style properties...
-  SeparatorType? separatorType = SeparatorType.colon,
-  EasyTimerController? controller,
-  double? height,
-  double? width,
-})
-```
-
-#### RepeatBuilder Constructor
-
-```dart
-EasyTimerCount.repeatBuilder({
-  required EasyTime duration,
-  required Widget Function(String time) builder,
-  required RankingType rankingType,
-  required Function() onTimerStarts,
-  required Function() onTimerEnds,
-  required Function(int countOfRestart) onTimerRestart,
-  SeparatorType? separatorType = SeparatorType.colon,
-  EasyTimerController? controller,
-  double? width,
-  double? height,
-})
-```
-
-### EasyTimerController
-
-Controller for managing timer externally:
-
-```dart
-final controller = EasyTimerController();
-
-// Methods:
-controller.stop();    // Stop the timer
-controller.resume();  // Resume a stopped timer
-controller.reset();   // Reset the timer to initial state
-controller.restart(); // Restart the timer from the beginning
-```
-
-### Enums
-
-```dart
-// Determines if the timer counts up or down
-enum RankingType { ascending, descending }
-
-// Sets the separator style in the time display
-enum SeparatorType { colon, dashed, none }
-```
-
-## Example
-
-```dart
-import 'package:flutter/material.dart';
-import 'package:easy_timer_count/easy_timer_count.dart';
-
-void main() {
-  runApp(const MyApp());
+class TimerPage extends StatefulWidget {
+  @override
+  _TimerPageState createState() => _TimerPageState();
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class _TimerPageState extends State<TimerPage> {
+  final EasyTimerController controller = EasyTimerController();
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: const Text('EasyTimerCount Demo')),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Basic countdown timer - 3 minutes
-              EasyTimerCount(
-                duration: const EasyTime(minutes: 3),
-                rankingType: RankingType.descending,
-                onTimerStarts: () => print('Timer started'),
-                onTimerEnds: () => print('Timer finished'),
-                timerColor: Colors.blue,
-                fontSize: 24,
-                timerTextWeight: FontWeight.bold,
-              ),
-              
-              const SizedBox(height: 40),
-              
-              // Count-up timer with custom styling - up to 1 minute
-              EasyTimerCount(
-                duration: const EasyTime(minutes: 1),
-                rankingType: RankingType.ascending,
-                onTimerStarts: () => print('Timer started'),
-                onTimerEnds: () => print('Timer reached 1 minute'),
-                timerColor: Colors.green,
-                fontSize: 28,
-                timerTextWeight: FontWeight.w500,
-                separatorType: SeparatorType.dashed,
-              ),
-            ],
+    return Column(
+      children: [
+        EasyTimerCount(
+          controller: controller,
+          duration: EasyTime(minutes: 3),
+          onTimerStarts: (context) => print('Started'),
+          onTimerEnds: (context) => print('Ended'),
+        ),
+        Row(
+          children: [
+            ElevatedButton(
+              onPressed: () => controller.stop(),
+              child: Text('Pause'),
+            ),
+            ElevatedButton(
+              onPressed: () => controller.resume(),
+              child: Text('Resume'),
+            ),
+            ElevatedButton(
+              onPressed: () => controller.reset(),
+              child: Text('Reset'),
+            ),
+            ElevatedButton(
+              onPressed: () => controller.restart(),
+              child: Text('Restart'),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+}
+```
+
+### Custom Styling
+
+```dart
+EasyTimerCount(
+  duration: EasyTime(hours: 1, minutes: 30),
+  separatorType: SeparatorType.dashed,
+  timerColor: Colors.red,
+  fontSize: 24,
+  timerTextWeight: FontWeight.bold,
+  letterSpacing: 2.0,
+  decoration: TextDecoration.underline,
+  fontFamily: 'Roboto',
+  onTimerStarts: (context) => print('Started'),
+  onTimerEnds: (context) => print('Ended'),
+)
+```
+
+### Custom Builder
+
+```dart
+EasyTimerCount.builder(
+  duration: EasyTime(minutes: 5),
+  builder: (timeString) {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.blue,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 2,
+            blurRadius: 5,
           ),
+        ],
+      ),
+      child: Text(
+        timeString,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
         ),
       ),
+    );
+  },
+  onTimerStarts: (context) => print('Started'),
+  onTimerEnds: (context) => print('Ended'),
+)
+```
+
+### Auto-Restart Timer
+
+```dart
+EasyTimerCount(
+  duration: EasyTime(seconds: 30),
+  reCountAfterFinishing: true,
+  onTimerStarts: (context) => print('Timer started'),
+  onTimerEnds: (context) => print('Timer ended'),
+  onTimerRestart: (context, restartCount) {
+    print('Timer restarted $restartCount times');
+  },
+)
+```
+
+## Parameters
+
+### EasyTimerCount Properties
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `duration` | `EasyTime` | **required** | Timer duration (hours, minutes, seconds) |
+| `onTimerStarts` | `Function(BuildContext)` | **required** | Callback when timer starts |
+| `onTimerEnds` | `Function(BuildContext)` | **required** | Callback when timer ends |
+| `rankingType` | `RankingType` | `descending` | Timer direction (countdown/countup) |
+| `separatorType` | `SeparatorType` | `colon` | Separator between time units |
+| `controller` | `EasyTimerController?` | `null` | Timer controller for programmatic control |
+| `resetTimer` | `bool` | `false` | Auto reset timer when finished |
+| `reCountAfterFinishing` | `bool` | `false` | Auto restart timer continuously |
+| `onTimerRestart` | `Function(BuildContext, int)?` | `null` | Callback on timer restart |
+| `timerColor` | `Color?` | `null` | Timer text color |
+| `fontSize` | `double?` | `16` | Timer text font size |
+| `timerTextWeight` | `FontWeight?` | `null` | Timer text font weight |
+| `letterSpacing` | `double?` | `null` | Letter spacing in timer text |
+| `wordSpacing` | `double?` | `null` | Word spacing in timer text |
+| `decoration` | `TextDecoration?` | `null` | Text decoration (underline, etc.) |
+| `fontFamily` | `String?` | `null` | Custom font family |
+| `builder` | `Widget Function(String)?` | `null` | Custom builder for timer UI |
+
+### EasyTime Class
+
+```dart
+EasyTime(
+  hours: 1,    // Optional: hours (default: 0)
+  minutes: 30, // Optional: minutes (default: 0) 
+  seconds: 45  // Optional: seconds (default: 0)
+)
+```
+
+### RankingType Enum
+
+- `RankingType.descending` - Countdown timer (default)
+- `RankingType.ascending` - Countup timer
+
+### SeparatorType Enum
+
+- `SeparatorType.colon` - Uses `:` separator (default)
+- `SeparatorType.dashed` - Uses `-` separator  
+- `SeparatorType.none` - No separator
+
+### EasyTimerController Methods
+
+| Method | Description |
+|--------|-------------|
+| `restart()` | Restart the timer from beginning |
+| `stop()` | Stop/pause the timer |
+| `resume()` | Resume the paused timer |
+| `reset()` | Reset timer to initial state |
+| `dispose()` | Clean up resources |
+
+## Examples
+
+### Workout Timer
+
+```dart
+class WorkoutTimer extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return EasyTimerCount(
+      duration: EasyTime(minutes: 20),
+      rankingType: RankingType.descending,
+      separatorType: SeparatorType.colon,
+      timerColor: Colors.red,
+      fontSize: 32,
+      timerTextWeight: FontWeight.bold,
+      onTimerStarts: (context) {
+        // Play start sound
+        print('Workout started!');
+      },
+      onTimerEnds: (context) {
+        // Play finish sound
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: Text('Workout Complete!'),
+            content: Text('Great job! You completed your 20-minute workout.'),
+          ),
+        );
+      },
     );
   }
 }
 ```
 
-## Notes
+### Pomodoro Timer
 
-- The timer uses Flutter's `Timer` class, which means it will pause when the app is in the background
-- For accurate timing across app states, consider a more robust timing solution
-- Time display is adaptive - it will display hours only when needed
+```dart
+class PomodoroTimer extends StatefulWidget {
+  @override
+  _PomodoroTimerState createState() => _PomodoroTimerState();
+}
+
+class _PomodoroTimerState extends State<PomodoroTimer> {
+  bool isWorkTime = true;
+  
+  @override
+  Widget build(BuildContext context) {
+    return EasyTimerCount(
+      key: ValueKey(isWorkTime), // Rebuild when switching modes
+      duration: EasyTime(minutes: isWorkTime ? 25 : 5),
+      timerColor: isWorkTime ? Colors.red : Colors.green,
+      fontSize: 48,
+      timerTextWeight: FontWeight.bold,
+      onTimerStarts: (context) {
+        print('${isWorkTime ? 'Work' : 'Break'} time started');
+      },
+      onTimerEnds: (context) {
+        setState(() {
+          isWorkTime = !isWorkTime; // Switch between work and break
+        });
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: Text('Time\'s up!'),
+            content: Text('Time for a ${isWorkTime ? 'work session' : 'break'}'),
+          ),
+        );
+      },
+    );
+  }
+}
+```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Support
+
+If you like this package, please give it a ⭐ on [GitHub](https://github.com/your-repo/easy_timer_count) and 👍 on [pub.dev](https://pub.dev/packages/easy_timer_count)!
+
+For issues and feature requests, please visit our [GitHub Issues](https://github.com/your-repo/easy_timer_count/issues) page.
