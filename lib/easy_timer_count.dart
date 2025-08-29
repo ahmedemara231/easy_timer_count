@@ -3,46 +3,11 @@ library customized_timer;
 import 'dart:async';
 import 'package:easy_timer_count/extensions/null_extension.dart';
 import 'package:easy_timer_count/extensions/zero_extension.dart';
+import 'package:easy_timer_count/helpers/time.dart';
 import 'package:flutter/material.dart';
-
-/// A utility class that defines a time duration in hours, minutes, and seconds.
-class EasyTime {
-  /// Number of hours.
-  final int hours;
-
-  /// Number of minutes.
-  final int minutes;
-
-  /// Number of seconds.
-  final int seconds;
-
-  /// Creates an [EasyTime] object with [hours], [minutes], and [seconds].
-  const EasyTime({this.hours = 0, this.minutes = 0, this.seconds = 0});
-
-  /// Converts the given [hours], [minutes], and [seconds] into total seconds.
-  int get toSeconds => hours * 3600 + minutes * 60 + seconds;
-}
-
-/// Defines the order in which the timer counts.
-enum RankingType {
-  /// Timer counts up from `0` to [EasyTime.toSeconds].
-  ascending,
-
-  /// Timer counts down from [EasyTime.toSeconds] to `0`.
-  descending,
-}
-
-/// Defines the type of separator used between hours, minutes, and seconds.
-enum SeparatorType {
-  /// Example: `10:20:30`
-  colon,
-
-  /// Example: `10-20-30`
-  dashed,
-
-  /// Example: `102030`
-  none
-}
+import 'helpers/ranking.dart';
+import 'helpers/separator.dart';
+part 'helpers/controller.dart';
 
 /// A customizable timer widget with support for start, stop, reset, resume, and restart.
 ///
@@ -352,54 +317,4 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
   }
 }
 
-/// A controller to manage an [EasyTimerCount] externally.
-///
-/// Example usage:
-/// ```dart
-/// final controller = EasyTimerController();
-///
-/// EasyTimerCount(
-///   duration: EasyTime(seconds: 30),
-///   controller: controller,
-///   onTimerStarts: (context) {},
-///   onTimerEnds: (context) {},
-/// );
-///
-/// // Control the timer
-/// controller.stop();
-/// controller.restart();
-/// ```
-class EasyTimerController {
-  late _EasyTimerCountState _timerState;
 
-  /// Internal method to bind the controller to the timer state.
-  void _setState(_EasyTimerCountState state) {
-    _timerState = state;
-  }
-
-  /// Restarts the timer from the beginning.
-  void restart() {
-    _timerState._restart();
-  }
-
-  /// Stops the timer completely.
-  void stop() {
-    _timerState._stopTimer();
-  }
-
-  /// Resumes the timer after pausing.
-  void resume() {
-    _timerState._resumeTimer();
-  }
-
-  /// Resets the timer without running it.
-  void reset() {
-    _timerState._resetTimer();
-    _timerState._timer.cancel();
-  }
-
-  /// Disposes the controller and cancels the timer.
-  void dispose() {
-    _timerState._timer.cancel();
-  }
-}

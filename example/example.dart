@@ -1,3 +1,5 @@
+import 'package:easy_timer_count/helpers/ranking.dart';
+import 'package:easy_timer_count/helpers/time.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_timer_count/easy_timer_count.dart';
 
