@@ -1,6 +1,7 @@
 library customized_timer;
 import 'dart:async';
 import 'package:easy_timer_count/extensions/null_extension.dart';
+import 'package:easy_timer_count/extensions/zero_extension.dart';
 import 'package:flutter/material.dart';
 
 class EasyTime{
@@ -177,7 +178,7 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
         },
         actionBasedDescendingRanking: () {
           _seconds--;
-          if (_seconds == 0) {
+          if (_seconds.isEqualZero) {
             _stopTimer();
             if(widget.resetTimer){
               // TODO: delay for 1 second
@@ -248,7 +249,7 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
 
   @override
   Widget build(BuildContext context) {
-    return widget.builder == null? FittedBox(
+    return widget.builder.isNull? FittedBox(
       child: Text(
         _formatTime(_seconds),
         style: TextStyle(
@@ -277,32 +278,32 @@ class EasyTimerController {
   }
 
   void restart() {
-    if (_timerState != null) {
+    if (_timerState.isNotNull) {
       _timerState!._restart();
     }
   }
 
   void stop() {
-    if (_timerState != null) {
+    if (_timerState.isNotNull) {
       _timerState!._stopTimer();
     }
   }
 
   void resume() {
-    if (_timerState != null) {
+    if (_timerState.isNotNull) {
       _timerState!._resumeTimer();
     }
   }
 
   void reset() {
-    if (_timerState != null) {
+    if (_timerState.isNotNull) {
       _timerState!._resetTimer();
       _timerState!._timer.cancel();
     }
   }
 
   void dispose() {
-    if (_timerState != null) {
+    if (_timerState.isNotNull) {
       _timerState!._timer.cancel();
       _timerState = null;
     }
