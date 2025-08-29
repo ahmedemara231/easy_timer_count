@@ -1,6 +1,6 @@
 library customized_timer;
 import 'dart:async';
-import 'dart:developer';
+import 'package:easy_timer_count/extensions/null_extension.dart';
 import 'package:flutter/material.dart';
 
 class EasyTime{
@@ -38,10 +38,8 @@ class EasyTimerCount extends StatefulWidget {
   final Widget Function(String time)? builder;
   final Locale? locale;
   final TextOverflow? textOverflow;
-  final double? height;
-  final double? width;
 
-  const EasyTimerCount({
+  EasyTimerCount({
     super.key,
     required this.duration,
     required this.onTimerStarts,
@@ -61,11 +59,14 @@ class EasyTimerCount extends StatefulWidget {
     this.locale,
     this.textOverflow,
     this.controller,
-    this.height,
-    this.width,
-  }) : builder = null, reCountAfterFinishing = false, onTimerRestart = null;
+    this.reCountAfterFinishing = false,
+    this.onTimerRestart
+  }) : builder = null,
+  assert(reCountAfterFinishing && (reCountAfterFinishing.isNotNull || reCountAfterFinishing.isNull) ||
+      (!reCountAfterFinishing && reCountAfterFinishing.isNull)
+  );
 
-  const EasyTimerCount.builder({
+  EasyTimerCount.builder({
     super.key,
     required this.duration,
     required this.builder,
@@ -75,8 +76,8 @@ class EasyTimerCount extends StatefulWidget {
     this.separatorType = SeparatorType.colon,
     this.resetTimer = false,
     this.controller,
-    this.width,
-    this.height
+    this.reCountAfterFinishing = false,
+    this.onTimerRestart
   }) :
         timerColor = null,
         timerTextWeight = null,
@@ -88,64 +89,11 @@ class EasyTimerCount extends StatefulWidget {
         textDecorationStyle = null,
         fontFamily = null,
         locale = null,
-        reCountAfterFinishing = false,
         textOverflow = null,
-        onTimerRestart = null;
+        assert(reCountAfterFinishing && (reCountAfterFinishing.isNotNull || reCountAfterFinishing.isNull) ||
+            (!reCountAfterFinishing && reCountAfterFinishing.isNull)
+        );
 
-  const EasyTimerCount.repeat({
-    super.key,
-    required this.duration,
-    required this.onTimerStarts,
-    required this.onTimerEnds,
-    required this.onTimerRestart,
-    this.rankingType = RankingType.descending,
-    this.separatorType = SeparatorType.colon,
-    this.timerColor,
-    this.timerTextWeight,
-    this.fontSize,
-    this.wordSpacing,
-    this.letterSpacing,
-    this.decoration,
-    this.backgroundColor,
-    this.textDecorationStyle,
-    this.fontFamily,
-    this.locale,
-    this.textOverflow,
-    this.controller,
-    this.height,
-    this.width,
-  }) :
-        reCountAfterFinishing = true,
-        builder = null,
-        resetTimer = false;
-
-
-  const EasyTimerCount.repeatBuilder({
-    super.key,
-    required this.duration,
-    required this.builder,
-    required this.onTimerStarts,
-    required this.onTimerEnds,
-    required this.onTimerRestart,
-    this.rankingType = RankingType.descending,
-    this.separatorType = SeparatorType.colon,
-    this.controller,
-    this.width,
-    this.height
-  }) :
-        reCountAfterFinishing = true,
-        timerColor = null,
-        timerTextWeight = null,
-        resetTimer = false,
-        fontSize = null,
-        wordSpacing = null,
-        letterSpacing = null,
-        decoration = null,
-        backgroundColor = null,
-        textDecorationStyle = null,
-        fontFamily = null,
-        locale = null,
-        textOverflow = null;
 
   @override
   State<EasyTimerCount> createState() => _EasyTimerCountState();
@@ -153,10 +101,9 @@ class EasyTimerCount extends StatefulWidget {
 
 class _EasyTimerCountState extends State<EasyTimerCount> {
 
-  void _setState(Function function) {
-    function();
-    setState(() => widget.controller?._setState(this));
-  }
+  // void _setState(Function function) {
+  //   function();
+  // }
 
   late String separator;
   String get _getSeparator{
@@ -208,8 +155,8 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
 
   void _manageTimeStarting(){
     _manageTimerBasedRanking(
-        actionBasedAscendingRanking: () => _setState(() => _seconds = 0),
-        actionBasedDescendingRanking: () => _setState(() => _seconds = widget.duration.toSeconds)
+        actionBasedAscendingRanking: () => setState(() => _seconds = 0),
+        actionBasedDescendingRanking: () => setState(() => _seconds = widget.duration.toSeconds)
     );
   }
 
@@ -248,7 +195,7 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
     _manageTimeStarting();
     _timer = Timer.periodic(
         const Duration(seconds: 1),
-            (timer) => _setState(() => _manageTimerChanging())
+            (timer) => setState(() => _manageTimerChanging())
     );
     await widget.onTimerStarts(context);
   }
@@ -257,7 +204,7 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
     _timer.cancel();
     _timer = Timer.periodic(
         const Duration(seconds: 1),
-            (timer) => _setState(() => _manageTimerChanging())
+            (timer) => setState(() => _manageTimerChanging())
     );
   }
 
@@ -268,8 +215,8 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
 
   void _resetTimer() {
     _manageTimerBasedRanking(
-        actionBasedAscendingRanking: () => _setState(() => _seconds = 0),
-        actionBasedDescendingRanking: () => _setState(() => _seconds = widget.duration.toSeconds)
+        actionBasedAscendingRanking: () => setState(() => _seconds = 0),
+        actionBasedDescendingRanking: () => setState(() => _seconds = widget.duration.toSeconds)
     );
   }
 
@@ -293,6 +240,7 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
 
   @override
   void initState() {
+    widget.controller?._setState(this);
     separator = _getSeparator;
     _startTimer();
     super.initState();
@@ -300,28 +248,24 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: widget.width,
-      height: widget.height,
-      child: FittedBox(
-          child: widget.builder == null? Text(
-            _formatTime(_seconds),
-            style: TextStyle(
-              fontWeight: widget.timerTextWeight,
-              color: widget.timerColor,
-              fontSize: widget.fontSize?? 16,
-              wordSpacing: widget.wordSpacing,
-              letterSpacing: widget.letterSpacing,
-              decoration: widget.decoration,
-              backgroundColor: widget.backgroundColor,
-              decorationStyle: widget.textDecorationStyle,
-              fontFamily: widget.fontFamily,
-              locale: widget.locale?? const Locale('en'),
-              overflow: widget.textOverflow?? TextOverflow.ellipsis,
-            ),
-          ) : widget.builder!(_formatTime(_seconds))
+    return widget.builder == null? FittedBox(
+      child: Text(
+        _formatTime(_seconds),
+        style: TextStyle(
+          fontWeight: widget.timerTextWeight,
+          color: widget.timerColor,
+          fontSize: widget.fontSize?? 16,
+          wordSpacing: widget.wordSpacing,
+          letterSpacing: widget.letterSpacing,
+          decoration: widget.decoration,
+          backgroundColor: widget.backgroundColor,
+          decorationStyle: widget.textDecorationStyle,
+          fontFamily: widget.fontFamily,
+          locale: widget.locale?? const Locale('en'),
+          overflow: widget.textOverflow?? TextOverflow.ellipsis,
+        ),
       ),
-    );
+    ) : widget.builder!(_formatTime(_seconds));
   }
 }
 
