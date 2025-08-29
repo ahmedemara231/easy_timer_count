@@ -1,45 +1,124 @@
 library customized_timer;
+
 import 'dart:async';
 import 'package:easy_timer_count/extensions/null_extension.dart';
 import 'package:easy_timer_count/extensions/zero_extension.dart';
 import 'package:flutter/material.dart';
 
-class EasyTime{
+/// A utility class that defines a time duration in hours, minutes, and seconds.
+class EasyTime {
+  /// Number of hours.
   final int hours;
+
+  /// Number of minutes.
   final int minutes;
+
+  /// Number of seconds.
   final int seconds;
 
+  /// Creates an [EasyTime] object with [hours], [minutes], and [seconds].
   const EasyTime({this.hours = 0, this.minutes = 0, this.seconds = 0});
 
+  /// Converts the given [hours], [minutes], and [seconds] into total seconds.
   int get toSeconds => hours * 3600 + minutes * 60 + seconds;
 }
 
-enum RankingType{ascending, descending}
-enum SeparatorType{colon, dashed, none}
+/// Defines the order in which the timer counts.
+enum RankingType {
+  /// Timer counts up from `0` to [EasyTime.toSeconds].
+  ascending,
 
+  /// Timer counts down from [EasyTime.toSeconds] to `0`.
+  descending,
+}
+
+/// Defines the type of separator used between hours, minutes, and seconds.
+enum SeparatorType {
+  /// Example: `10:20:30`
+  colon,
+
+  /// Example: `10-20-30`
+  dashed,
+
+  /// Example: `102030`
+  none
+}
+
+/// A customizable timer widget with support for start, stop, reset, resume, and restart.
+///
+/// Example usage:
+/// ```dart
+/// EasyTimerCount(
+///   duration: EasyTime(minutes: 1),
+///   onTimerStarts: (context) => print("Timer started"),
+///   onTimerEnds: (context) => print("Timer ended"),
+/// )
+/// ```
 class EasyTimerCount extends StatefulWidget {
+  /// Optional controller to manage the timer manually.
   final EasyTimerController? controller;
+
+  /// Type of separator between the displayed numbers.
   final SeparatorType? separatorType;
+
+  /// Whether the timer counts up ([RankingType.ascending]) or down ([RankingType.descending]).
   final RankingType rankingType;
+
+  /// The duration of the timer.
   final EasyTime duration;
+
+  /// Callback triggered when the timer starts.
   final FutureOr<void> Function(BuildContext context) onTimerStarts;
+
+  /// Callback triggered when the timer ends.
   final FutureOr<void> Function(BuildContext context) onTimerEnds;
+
+  /// Callback triggered when the timer restarts (only if [reCountAfterFinishing] is true).
   final FutureOr<void> Function(BuildContext context, int countOfRestart)? onTimerRestart;
+
+  /// Whether the timer should reset after finishing.
   final bool resetTimer;
+
+  /// Whether the timer should automatically restart after finishing.
   final bool reCountAfterFinishing;
+
+  /// Color of the timer text.
   final Color? timerColor;
+
+  /// Font weight of the timer text.
   final FontWeight? timerTextWeight;
+
+  /// Font size of the timer text.
   final double? fontSize;
+
+  /// Word spacing of the timer text.
   final double? wordSpacing;
+
+  /// Letter spacing of the timer text.
   final double? letterSpacing;
+
+  /// Decoration applied to the timer text.
   final TextDecoration? decoration;
+
+  /// Background color of the timer text.
   final Color? backgroundColor;
+
+  /// Decoration style of the timer text.
   final TextDecorationStyle? textDecorationStyle;
+
+  /// Font family of the timer text.
   final String? fontFamily;
+
+  /// Custom builder to render the timer with a different widget instead of [Text].
   final Widget Function(String time)? builder;
+
+  /// Locale for text rendering.
   final Locale? locale;
+
+  /// Overflow behavior for the timer text.
   final TextOverflow? textOverflow;
 
+  /// Default constructor for [EasyTimerCount].
   EasyTimerCount({
     super.key,
     required this.duration,
@@ -61,14 +140,15 @@ class EasyTimerCount extends StatefulWidget {
     this.textOverflow,
     this.controller,
     this.reCountAfterFinishing = false,
-    this.onTimerRestart
-  }) : builder = null,
+    this.onTimerRestart,
+  })  : builder = null,
         assert(duration.seconds.isNotEqualZero || duration.minutes.isNotEqualZero || duration.hours.isNotEqualZero),
         assert(
         (reCountAfterFinishing && (onTimerRestart.isNotNull || onTimerRestart.isNull))
             || (!reCountAfterFinishing && onTimerRestart.isNull)
         );
 
+  /// Builder constructor for [EasyTimerCount] to allow custom rendering.
   EasyTimerCount.builder({
     super.key,
     required this.duration,
@@ -80,9 +160,8 @@ class EasyTimerCount extends StatefulWidget {
     this.resetTimer = false,
     this.controller,
     this.reCountAfterFinishing = false,
-    this.onTimerRestart
-  }) :
-        timerColor = null,
+    this.onTimerRestart,
+  })  : timerColor = null,
         timerTextWeight = null,
         fontSize = null,
         wordSpacing = null,
@@ -99,20 +178,27 @@ class EasyTimerCount extends StatefulWidget {
             || (!reCountAfterFinishing && onTimerRestart.isNull)
         );
 
-
   @override
   State<EasyTimerCount> createState() => _EasyTimerCountState();
 }
 
+/// Internal state of [EasyTimerCount].
 class _EasyTimerCountState extends State<EasyTimerCount> {
-
-  // void _setState(Function function) {
-  //   function();
-  // }
-
+  /// Separator used between time units.
   late String separator;
-  String get _getSeparator{
-    switch(widget.separatorType){
+
+  /// Current number of seconds left or elapsed.
+  late int _seconds;
+
+  /// Internal timer instance.
+  late Timer _timer;
+
+  /// Number of times the timer has restarted.
+  int count = 0;
+
+  /// Chooses the separator string based on [SeparatorType].
+  String get _getSeparator {
+    switch (widget.separatorType) {
       case SeparatorType.colon:
         return ':';
       case SeparatorType.dashed:
@@ -122,114 +208,105 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
     }
   }
 
-  late int _seconds;
-
+  /// Converts seconds into a formatted string like `mm:ss` or `hh:mm:ss`.
   String _formatTime(int seconds) {
-    // final int days = seconds ~/ 86400;
     final int hours = seconds ~/ 3600;
     final int minutes = (seconds % 3600) ~/ 60;
     final int secs = seconds % 60;
 
-    // if (_seconds >= 86400) {
-    //   return '${days.toString().padLeft(2, '0')}:${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
-    // }
-
-    if(_seconds >= 3600){
+    if (_seconds >= 3600) {
       return '${hours.toString().padLeft(2, '0')}$separator${minutes.toString().padLeft(2, '0')}$separator${secs.toString().padLeft(2, '0')}';
-    }else{
+    } else {
       return '${minutes.toString().padLeft(2, '0')}$separator${secs.toString().padLeft(2, '0')}';
     }
   }
 
-  late Timer _timer;
-
+  /// Executes logic depending on [RankingType].
   void _manageTimerBasedRanking({
     required void Function() actionBasedAscendingRanking,
     required void Function() actionBasedDescendingRanking,
-}){
-    switch(widget.rankingType){
+  }) {
+    switch (widget.rankingType) {
       case RankingType.ascending:
         actionBasedAscendingRanking();
         break;
-
       case RankingType.descending:
         actionBasedDescendingRanking();
         break;
     }
   }
 
-  void _manageTimeStarting(){
+  /// Initializes the timer value at the start.
+  void _manageTimeStarting() {
     _manageTimerBasedRanking(
-        actionBasedAscendingRanking: () => setState(() => _seconds = 0),
-        actionBasedDescendingRanking: () => setState(() => _seconds = widget.duration.toSeconds)
+      actionBasedAscendingRanking: () => setState(() => _seconds = 0),
+      actionBasedDescendingRanking: () =>
+          setState(() => _seconds = widget.duration.toSeconds),
     );
   }
 
-  void _manageTimerChanging(){
+  /// Updates the timer every second depending on [RankingType].
+  void _manageTimerChanging() {
     _manageTimerBasedRanking(
-        actionBasedAscendingRanking: () {
-          _seconds++;
-          if (_seconds == widget.duration.toSeconds) {
-            _stopTimer();
-            if(widget.resetTimer){
-              // TODO: delay for 1 second
-              _resetTimer();
-            }
-            if(widget.reCountAfterFinishing){
-              _restart();
-            }
-          }
-        },
-        actionBasedDescendingRanking: () {
-          _seconds--;
-          if (_seconds.isEqualZero) {
-            _stopTimer();
-            if(widget.resetTimer){
-              // TODO: delay for 1 second
-              _resetTimer();
-            }
-            if(widget.reCountAfterFinishing){
-              _restart();
-            }
-          }
+      actionBasedAscendingRanking: () {
+        _seconds++;
+        if (_seconds == widget.duration.toSeconds) {
+          _stopTimer();
+          // TODO: delay for 1 second
+          if (widget.resetTimer) _resetTimer();
+          if (widget.reCountAfterFinishing) _restart();
         }
-     );
+      },
+      actionBasedDescendingRanking: () {
+        _seconds--;
+        if (_seconds.isEqualZero) {
+          _stopTimer();
+          // TODO: delay for 1 second
+          if (widget.resetTimer) _resetTimer();
+          if (widget.reCountAfterFinishing) _restart();
+        }
+      },
+    );
   }
 
-  Future<void> _startTimer() async{
+  /// Starts the timer.
+  Future<void> _startTimer() async {
     _manageTimeStarting();
     _timer = Timer.periodic(
-        const Duration(seconds: 1),
-            (timer) => setState(() => _manageTimerChanging())
+      const Duration(seconds: 1),
+          (timer) => setState(() => _manageTimerChanging()),
     );
     await widget.onTimerStarts(context);
   }
 
+  /// Resumes the timer after pausing.
   void _resumeTimer() {
     _timer.cancel();
     _timer = Timer.periodic(
-        const Duration(seconds: 1),
-            (timer) => setState(() => _manageTimerChanging())
+      const Duration(seconds: 1),
+          (timer) => setState(() => _manageTimerChanging()),
     );
   }
 
-  Future<void> _stopTimer() async{
+  /// Stops the timer completely.
+  Future<void> _stopTimer() async {
     _timer.cancel();
     await widget.onTimerEnds(context);
   }
 
+  /// Resets the timer back to initial value.
   void _resetTimer() {
     _manageTimerBasedRanking(
-        actionBasedAscendingRanking: () => setState(() => _seconds = 0),
-        actionBasedDescendingRanking: () => setState(() => _seconds = widget.duration.toSeconds)
+      actionBasedAscendingRanking: () => setState(() => _seconds = 0),
+      actionBasedDescendingRanking: () =>
+          setState(() => _seconds = widget.duration.toSeconds),
     );
   }
 
-  int count = 0;
-
+  /// Restarts the timer from the beginning.
   void _restart() {
     count++;
-    if(_timer.isActive){
+    if (_timer.isActive) {
       _timer.cancel();
     }
     _resetTimer();
@@ -253,54 +330,76 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
 
   @override
   Widget build(BuildContext context) {
-    return widget.builder.isNull? FittedBox(
+    return widget.builder.isNull ?
+    FittedBox(
       child: Text(
         _formatTime(_seconds),
         style: TextStyle(
           fontWeight: widget.timerTextWeight,
           color: widget.timerColor,
-          fontSize: widget.fontSize?? 16,
+          fontSize: widget.fontSize ?? 16,
           wordSpacing: widget.wordSpacing,
           letterSpacing: widget.letterSpacing,
           decoration: widget.decoration,
           backgroundColor: widget.backgroundColor,
           decorationStyle: widget.textDecorationStyle,
           fontFamily: widget.fontFamily,
-          locale: widget.locale?? const Locale('en'),
-          overflow: widget.textOverflow?? TextOverflow.ellipsis,
+          locale: widget.locale ?? const Locale('en'),
+          overflow: widget.textOverflow ?? TextOverflow.ellipsis,
         ),
       ),
     ) : widget.builder!(_formatTime(_seconds));
   }
 }
 
+/// A controller to manage an [EasyTimerCount] externally.
+///
+/// Example usage:
+/// ```dart
+/// final controller = EasyTimerController();
+///
+/// EasyTimerCount(
+///   duration: EasyTime(seconds: 30),
+///   controller: controller,
+///   onTimerStarts: (context) {},
+///   onTimerEnds: (context) {},
+/// );
+///
+/// // Control the timer
+/// controller.stop();
+/// controller.restart();
+/// ```
 class EasyTimerController {
-  _EasyTimerCountState? _timerState;
+  late _EasyTimerCountState _timerState;
 
+  /// Internal method to bind the controller to the timer state.
   void _setState(_EasyTimerCountState state) {
     _timerState = state;
   }
 
+  /// Restarts the timer from the beginning.
   void restart() {
-    _timerState?._restart();
+    _timerState._restart();
   }
 
+  /// Stops the timer completely.
   void stop() {
-    _timerState?._stopTimer();
+    _timerState._stopTimer();
   }
 
+  /// Resumes the timer after pausing.
   void resume() {
-    _timerState?._resumeTimer();
+    _timerState._resumeTimer();
   }
 
+  /// Resets the timer without running it.
   void reset() {
-    _timerState?._resetTimer();
-    _timerState?._timer.cancel();
+    _timerState._resetTimer();
+    _timerState._timer.cancel();
   }
 
+  /// Disposes the controller and cancels the timer.
   void dispose() {
-    _timerState?._timer.cancel();
-    _timerState = null;
+    _timerState._timer.cancel();
   }
-// bool get isPaused => _timerState?._isPaused ?? true;
 }
