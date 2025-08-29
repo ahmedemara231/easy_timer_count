@@ -22,7 +22,7 @@ Add this to your package's `pubspec.yaml` file:
 
 ```yaml
 dependencies:
-  easy_timer_count: ^0.0.1
+  easy_timer_count: ^0.0.2
 ```
 
 Then run:
