@@ -1,4 +1,4 @@
-## 0.0.1
+## 0.0.2
 
 * Initial release of `easy_timer_count`.
 * Added `EasyTimerCount` widget for countdown / count-up timer display.
