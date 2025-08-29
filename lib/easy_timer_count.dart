@@ -63,9 +63,11 @@ class EasyTimerCount extends StatefulWidget {
     this.reCountAfterFinishing = false,
     this.onTimerRestart
   }) : builder = null,
-  assert(reCountAfterFinishing && (reCountAfterFinishing.isNotNull || reCountAfterFinishing.isNull) ||
-      (!reCountAfterFinishing && reCountAfterFinishing.isNull)
-  );
+        assert(duration.seconds.isNotEqualZero || duration.minutes.isNotEqualZero || duration.hours.isNotEqualZero),
+        assert(
+        (reCountAfterFinishing && (onTimerRestart.isNotNull || onTimerRestart.isNull))
+            || (!reCountAfterFinishing && onTimerRestart.isNull)
+        );
 
   EasyTimerCount.builder({
     super.key,
@@ -91,8 +93,10 @@ class EasyTimerCount extends StatefulWidget {
         fontFamily = null,
         locale = null,
         textOverflow = null,
-        assert(reCountAfterFinishing && (reCountAfterFinishing.isNotNull || reCountAfterFinishing.isNull) ||
-            (!reCountAfterFinishing && reCountAfterFinishing.isNull)
+        assert(duration.seconds.isNotEqualZero || duration.minutes.isNotEqualZero || duration.hours.isNotEqualZero),
+        assert(
+        (reCountAfterFinishing && (onTimerRestart.isNotNull || onTimerRestart.isNull))
+            || (!reCountAfterFinishing && onTimerRestart.isNull)
         );
 
 
@@ -278,35 +282,25 @@ class EasyTimerController {
   }
 
   void restart() {
-    if (_timerState.isNotNull) {
-      _timerState!._restart();
-    }
+    _timerState?._restart();
   }
 
   void stop() {
-    if (_timerState.isNotNull) {
-      _timerState!._stopTimer();
-    }
+    _timerState?._stopTimer();
   }
 
   void resume() {
-    if (_timerState.isNotNull) {
-      _timerState!._resumeTimer();
-    }
+    _timerState?._resumeTimer();
   }
 
   void reset() {
-    if (_timerState.isNotNull) {
-      _timerState!._resetTimer();
-      _timerState!._timer.cancel();
-    }
+    _timerState?._resetTimer();
+    _timerState?._timer.cancel();
   }
 
   void dispose() {
-    if (_timerState.isNotNull) {
-      _timerState!._timer.cancel();
-      _timerState = null;
-    }
+    _timerState?._timer.cancel();
+    _timerState = null;
   }
 // bool get isPaused => _timerState?._isPaused ?? true;
 }
