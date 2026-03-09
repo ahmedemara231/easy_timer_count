@@ -21,8 +21,8 @@ A powerful and customizable Flutter package for creating countdown and countup t
 Add this to your package's `pubspec.yaml` file:
 
 ```yaml
-dependencies:
-  easy_timer_count: ^0.0.2
+dependencies: <latest>
+  easy_timer_count: 
 ```
 
 Then run:
