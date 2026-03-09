@@ -148,7 +148,8 @@ class EasyTimerCount extends StatefulWidget {
 }
 
 /// Internal state of [EasyTimerCount].
-class _EasyTimerCountState extends State<EasyTimerCount> {
+class _EasyTimerCountState extends State<EasyTimerCount>
+    with WidgetsBindingObserver {
   /// Separator used between time units.
   late String separator;
 
@@ -160,6 +161,15 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
 
   /// Number of times the timer has restarted.
   int count = 0;
+
+  /// The wall-clock time when the current timer period started or resumed.
+  DateTime? _startTime;
+
+  /// The value of [_seconds] at the moment the timer started or resumed.
+  int _secondsAtStart = 0;
+
+  /// Whether the timer is currently running.
+  bool _isRunning = false;
 
   /// Chooses the separator string based on [SeparatorType].
   String get _getSeparator {
@@ -210,23 +220,23 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
     );
   }
 
-  /// Updates the timer every second depending on [RankingType].
+  /// Updates the timer based on actual wall-clock elapsed time.
   void _manageTimerChanging() {
+    if (_startTime == null) return;
+    final int elapsed = DateTime.now().difference(_startTime!).inSeconds;
     _manageTimerBasedRanking(
       actionBasedAscendingRanking: () {
-        _seconds++;
-        if (_seconds == widget.duration.toSeconds) {
+        _seconds = (_secondsAtStart + elapsed).clamp(0, widget.duration.toSeconds);
+        if (_seconds >= widget.duration.toSeconds) {
           _stopTimer();
-          // TODO: delay for 1 second
           if (widget.resetTimer) _resetTimer();
           if (widget.reCountAfterFinishing) _restart();
         }
       },
       actionBasedDescendingRanking: () {
-        _seconds--;
-        if (_seconds.isEqualZero) {
+        _seconds = (_secondsAtStart - elapsed).clamp(0, widget.duration.toSeconds);
+        if (_seconds <= 0) {
           _stopTimer();
-          // TODO: delay for 1 second
           if (widget.resetTimer) _resetTimer();
           if (widget.reCountAfterFinishing) _restart();
         }
@@ -237,6 +247,9 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
   /// Starts the timer.
   Future<void> _startTimer() async {
     _manageTimeStarting();
+    _startTime = DateTime.now();
+    _secondsAtStart = _seconds;
+    _isRunning = true;
     _timer = Timer.periodic(
       const Duration(seconds: 1),
           (timer) => setState(() => _manageTimerChanging()),
@@ -247,6 +260,9 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
   /// Resumes the timer after pausing.
   void _resumeTimer() {
     _timer.cancel();
+    _startTime = DateTime.now();
+    _secondsAtStart = _seconds;
+    _isRunning = true;
     _timer = Timer.periodic(
       const Duration(seconds: 1),
           (timer) => setState(() => _manageTimerChanging()),
@@ -255,12 +271,15 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
 
   /// Stops the timer completely.
   Future<void> _stopTimer() async {
+    _isRunning = false;
+    _startTime = null;
     _timer.cancel();
     await widget.onTimerEnds(context);
   }
 
   /// Resets the timer back to initial value.
   void _resetTimer() {
+    _startTime = null;
     _manageTimerBasedRanking(
       actionBasedAscendingRanking: () => setState(() => _seconds = 0),
       actionBasedDescendingRanking: () =>
@@ -280,17 +299,29 @@ class _EasyTimerCountState extends State<EasyTimerCount> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && _isRunning) {
+      // Sync the displayed time to actual elapsed wall-clock time
+      setState(() => _manageTimerChanging());
+    }
+  }
+
+  @override
   void dispose() {
-    _stopTimer();
+    WidgetsBinding.instance.removeObserver(this);
+    _isRunning = false;
+    _startTime = null;
+    _timer.cancel();
     super.dispose();
   }
 
   @override
   void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
     widget.controller?._setState(this);
     separator = _getSeparator;
     _startTimer();
-    super.initState();
   }
 
   @override
