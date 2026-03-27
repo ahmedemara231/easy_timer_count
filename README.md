@@ -323,14 +323,7 @@ No additional setup is required. The timer continues running in the background a
 
 ### iOS
 
-To allow background execution on iOS, enable the **Background Modes** capability in Xcode:
-
-1. Open your project in Xcode.
-2. Select the **Runner** target → **Signing & Capabilities**.
-3. Click **+ Capability** and add **Background Modes**.
-4. Check **Background fetch** and/or **Background processing** as needed.
-
-> **Note:** Apple's guidelines restrict long-running background tasks. For best results use this for timers that complete within a reasonable time frame. Always test on a real device.
+No additional setup is required. The timer syncs with wall-clock time using app lifecycle events, so it stays accurate when the user returns to the app.
 
 ## Contributing
 
