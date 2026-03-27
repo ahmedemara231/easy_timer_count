@@ -1,11 +1,13 @@
 # Easy Timer Count
 
+[![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://www.buymeacoffee.com/emara24)
+
 A powerful and customizable Flutter package for creating countdown and countup timers with rich styling options and flexible controls.
 
 ## Features
 
 - ✅ **Countdown Timer**: Count down from a specified duration
-- ✅ **Countup Timer**: Count up to a specified duration  
+- ✅ **Countup Timer**: Count up to a specified duration
 - ✅ **Flexible Time Format**: Support for hours, minutes, and seconds
 - ✅ **Custom Separators**: Choose between colon (:), dash (-), or no separator
 - ✅ **Timer Controller**: Programmatically control timer (start, stop, pause, resume, reset, restart)
@@ -15,6 +17,7 @@ A powerful and customizable Flutter package for creating countdown and countup t
 - ✅ **Rich Text Styling**: Full control over timer text appearance
 - ✅ **Callback Events**: Handle timer start, end, and restart events
 - ✅ **Easy Integration**: Simple and intuitive API
+- ✅ **Background Execution**: Timer continues running when the app is in the background on both Android and iOS
 
 ## Installation
 
@@ -310,6 +313,25 @@ class _PomodoroTimerState extends State<PomodoroTimer> {
 }
 ```
 
+## 📱 Background Execution
+
+Easy Timer Count supports background execution on both **Android** and **iOS**, meaning the timer keeps ticking accurately even when the user navigates away from the app or the screen turns off.
+
+### Android
+
+No additional setup is required. The timer continues running in the background automatically.
+
+### iOS
+
+To allow background execution on iOS, enable the **Background Modes** capability in Xcode:
+
+1. Open your project in Xcode.
+2. Select the **Runner** target → **Signing & Capabilities**.
+3. Click **+ Capability** and add **Background Modes**.
+4. Check **Background fetch** and/or **Background processing** as needed.
+
+> **Note:** Apple's guidelines restrict long-running background tasks. For best results use this for timers that complete within a reasonable time frame. Always test on a real device.
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
@@ -320,6 +342,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-If you like this package, please give it a ⭐ on [GitHub](https://github.com/your-repo/easy_timer_count) and 👍 on [pub.dev](https://pub.dev/packages/easy_timer_count)!
+If you like this package, please give it a ⭐ on [GitHub](https://github.com/ahmedemara231/easy_timer_count) and 👍 on [pub.dev](https://pub.dev/packages/easy_timer_count)!
 
-For issues and feature requests, please visit our [GitHub Issues](https://github.com/your-repo/easy_timer_count/issues) page.
+For issues and feature requests, please visit our [GitHub Issues](https://github.com/ahmedemara231/easy_timer_count/issues) page.
+
+---
+
+Made ❤️ by [Ahmed Emara](https://github.com/ahmedemara231)
+[LinkedIn](https://www.linkedin.com/in/ahmed-emara-11550526a/)
+
+[![Buy Me A Coffee](https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png)](https://www.buymeacoffee.com/emara24)
